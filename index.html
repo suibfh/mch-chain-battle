@@ -12,7 +12,7 @@
       <h1>MCH Chain Battle</h1>
       <p class="start-copy">エクステを4つつなげてヒーロー強化、迫り来るボスを倒せ！</p>
       <button id="startScreenBtn" class="start-screen-button" type="button">START</button>
-      <p class="start-note">PC: ← → / ↑ / Space　スマホ: ◀ DROP ↻ ▶</p>
+      <p class="start-note">PC: ← → / ↑ / Space　スマホ: ◀ DROP ↻ ▶（MENUで入替可）</p>
     </section>
   </div>
 
@@ -26,12 +26,22 @@
         <button id="startBtn">START</button>
         <button id="pauseBtn" disabled>PAUSE</button>
         <button id="resetBtn">RESET</button>
-        <button id="soundBtn" class="sound-btn" type="button">SOUND</button>
+        <button id="soundBtn" class="sound-btn" type="button">MENU</button>
       </div>
-      <div id="audioControls" class="audio-controls" aria-label="audio controls">
-        <label class="mute-label"><input id="muteToggle" type="checkbox" /> MUTE</label>
-        <label>BGM <input id="bgmVolume" type="range" min="0" max="100" value="40" /></label>
-        <label>SE <input id="seVolume" type="range" min="0" max="100" value="70" /></label>
+      <div id="audioControls" class="audio-controls menu-panel" aria-label="menu controls">
+        <div class="menu-section menu-audio-section">
+          <div class="menu-heading">SOUND</div>
+          <label class="mute-label"><input id="muteToggle" type="checkbox" /> MUTE</label>
+          <label>BGM <input id="bgmVolume" type="range" min="0" max="100" value="40" /></label>
+          <label>SE <input id="seVolume" type="range" min="0" max="100" value="70" /></label>
+        </div>
+        <div class="menu-section menu-layout-section">
+          <div class="menu-heading">BUTTON ORDER</div>
+          <div id="buttonOrderControls" class="button-order-controls" aria-label="touch button order"></div>
+        </div>
+        <div class="menu-section menu-result-section">
+          <button id="viewResultBtn" class="secondary-button" type="button" disabled>VIEW RESULT</button>
+        </div>
       </div>
     </header>
 
