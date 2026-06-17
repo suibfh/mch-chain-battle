@@ -103,6 +103,102 @@ function updateViewResultButton() {
   button.disabled = !(state?.gameOver && state?.result);
 }
 
+function setStartButtonMode(mode) {
+  const startBtn = document.getElementById('startBtn');
+  if (!startBtn) return;
+  startBtn.classList.toggle('is-ready', mode === 'ready');
+  startBtn.classList.toggle('is-running', mode === 'running');
+  startBtn.disabled = mode === 'running';
+  startBtn.textContent = mode === 'ready' ? 'START' : mode === 'running' ? 'PLAYING' : 'START';
+  document.body.classList.toggle('game-ready', mode === 'ready');
+}
+
+function setAppScreenReady() {
+  showStartScreen(false);
+  toggleSoundPanel(false);
+  hideResult();
+  hideHelp();
+  hideRanking();
+  cancelAnimationFrame(rafId);
+  state = createInitialState();
+  state.log = 'STARTボタンを押すと開始します。';
+  document.getElementById('pauseBtn').disabled = true;
+  document.getElementById('pauseBtn').textContent = 'PAUSE';
+  document.getElementById('pauseBtn').classList.remove('is-paused');
+  document.body.classList.remove('game-paused');
+  audio.stopBgm();
+  setStartButtonMode('ready');
+  render(state);
+  updateViewResultButton();
+}
+
+function hideHelp() {
+  const modal = document.getElementById('helpModal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function showHelp() {
+  toggleSoundPanel(false);
+  const modal = document.getElementById('helpModal');
+  if (!modal) return;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function getLocalRankings() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_RANKING_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function renderRankingList() {
+  const list = document.getElementById('rankingList');
+  if (!list) return;
+  const rankings = getLocalRankings().slice(0, 10);
+  if (rankings.length === 0) {
+    list.innerHTML = '<div class="ranking-empty">まだ登録されたスコアはありません。</div>';
+    return;
+  }
+  list.innerHTML = rankings.map((entry, index) => `
+    <div class="ranking-row">
+      <span class="ranking-rank">${index + 1}</span>
+      <span class="ranking-name">${escapeHtml(entry.playerName || 'Player')}</span>
+      <span class="ranking-score">${Number(entry.score || 0).toLocaleString()}</span>
+      <span class="ranking-boss">Lv.${entry.bossLevel || 1}</span>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;',
+  }[char]));
+}
+
+function hideRanking() {
+  const modal = document.getElementById('rankingModal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function showRanking() {
+  toggleSoundPanel(false);
+  renderRankingList();
+  const modal = document.getElementById('rankingModal');
+  if (!modal) return;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
 function toggleSoundPanel(forceOpen = null) {
   const shouldOpen = forceOpen === null ? !document.body.classList.contains('sound-open') : forceOpen;
   document.body.classList.toggle('sound-open', shouldOpen);
@@ -153,6 +249,8 @@ function startGame() {
   showStartScreen(false);
   toggleSoundPanel(false);
   hideResult();
+  hideHelp();
+  hideRanking();
   state = createInitialState();
   state.running = true;
   state.log = 'Battle Start!';
@@ -160,6 +258,7 @@ function startGame() {
   document.getElementById('pauseBtn').textContent = 'PAUSE';
   document.getElementById('pauseBtn').classList.remove('is-paused');
   document.body.classList.remove('game-paused');
+  setStartButtonMode('running');
   audio.playBgm();
   updateViewResultButton();
   lastTimestamp = performance.now();
@@ -179,6 +278,8 @@ function pauseGame() {
 
 function resetGame() {
   hideResult();
+  hideHelp();
+  hideRanking();
   showStartScreen(true);
   toggleSoundPanel(false);
   cancelAnimationFrame(rafId);
@@ -187,6 +288,7 @@ function resetGame() {
   document.getElementById('pauseBtn').textContent = 'PAUSE';
   document.getElementById('pauseBtn').classList.remove('is-paused');
   document.body.classList.remove('game-paused');
+  setStartButtonMode('default');
   audio.stopBgm();
   render(state);
   updateViewResultButton();
@@ -372,6 +474,7 @@ function endGame(reason) {
   };
   state.log = `${state.result.label} / Final Score ${Math.floor(state.score).toLocaleString()} / Boss Lv.${state.boss.level}`;
   document.getElementById('pauseBtn').disabled = true;
+  setStartButtonMode('ready');
   audio.playSe(reason === 'FULL_TIME' ? 'win' : 'gameOver');
   audio.stopBgm();
   render(state);
@@ -400,6 +503,7 @@ function submitLocalRanking() {
   rankings.sort((a, b) => b.score - a.score);
   localStorage.setItem(LOCAL_RANKING_KEY, JSON.stringify(rankings.slice(0, 20)));
   status.textContent = 'LOCAL RANKING SAVED. Supabase接続後にオンライン登録へ切り替えます。';
+  renderRankingList();
 }
 
 function loadPlayerName() {
@@ -512,8 +616,13 @@ async function init() {
   updateViewResultButton();
 
   document.getElementById('startBtn').addEventListener('click', startGame);
-  document.getElementById('startScreenBtn').addEventListener('click', startGame);
+  document.getElementById('startScreenBtn').addEventListener('click', setAppScreenReady);
   document.getElementById('soundBtn').addEventListener('click', () => toggleSoundPanel());
+  document.getElementById('homeRankingBtn').addEventListener('click', showRanking);
+  document.getElementById('howToBtn').addEventListener('click', showHelp);
+  document.getElementById('viewRankingBtn').addEventListener('click', showRanking);
+  document.getElementById('closeHelpBtn').addEventListener('click', hideHelp);
+  document.getElementById('closeRankingBtn').addEventListener('click', hideRanking);
   document.getElementById('pauseBtn').addEventListener('click', pauseGame);
   document.getElementById('resetBtn').addEventListener('click', resetGame);
   document.getElementById('retryBtn').addEventListener('click', startGame);
