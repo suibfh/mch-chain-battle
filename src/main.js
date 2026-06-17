@@ -17,7 +17,7 @@ import {
   applyGrowth,
   getFallIntervalByBossLevel,
 } from './battle.js';
-import { bindElements, render, getElement, setupTouchControls, hideResult } from './renderer.js';
+import { bindElements, render, getElement, setupTouchControls, hideResult, showResult } from './renderer.js';
 import { flashClass } from './effects.js';
 import { audio } from './audio.js';
 
@@ -27,11 +27,80 @@ let rafId = null;
 let audioPauseWasRunning = false;
 const PLAYER_NAME_KEY = 'mchChainBattlePlayerName';
 const LOCAL_RANKING_KEY = 'mchChainBattleLocalRanking';
+const TOUCH_BUTTON_ORDER_KEY = 'mchChainBattleTouchButtonOrder';
+const TOUCH_ACTIONS = ['left', 'drop', 'rotate', 'right'];
+let currentTouchButtonOrder = loadTouchButtonOrder();
 
 function showStartScreen(show) {
   const screen = document.getElementById('startScreen');
   if (!screen) return;
   screen.classList.toggle('is-hidden', !show);
+}
+
+function normalizeTouchButtonOrder(order) {
+  if (!Array.isArray(order)) return [...CONFIG.ui.touchButtonOrder];
+  const normalized = [];
+  for (const action of order) {
+    if (TOUCH_ACTIONS.includes(action) && !normalized.includes(action)) {
+      normalized.push(action);
+    }
+  }
+  for (const action of TOUCH_ACTIONS) {
+    if (!normalized.includes(action)) normalized.push(action);
+  }
+  return normalized.slice(0, TOUCH_ACTIONS.length);
+}
+
+function loadTouchButtonOrder() {
+  try {
+    return normalizeTouchButtonOrder(JSON.parse(localStorage.getItem(TOUCH_BUTTON_ORDER_KEY) || 'null'));
+  } catch {
+    return [...CONFIG.ui.touchButtonOrder];
+  }
+}
+
+function saveTouchButtonOrder(order) {
+  currentTouchButtonOrder = normalizeTouchButtonOrder(order);
+  localStorage.setItem(TOUCH_BUTTON_ORDER_KEY, JSON.stringify(currentTouchButtonOrder));
+}
+
+function renderButtonOrderControls() {
+  const container = document.getElementById('buttonOrderControls');
+  if (!container) return;
+  container.innerHTML = '';
+
+  currentTouchButtonOrder.forEach((action, index) => {
+    const select = document.createElement('select');
+    select.className = 'button-order-select';
+    select.setAttribute('aria-label', `button ${index + 1}`);
+
+    for (const optionAction of TOUCH_ACTIONS) {
+      const option = document.createElement('option');
+      option.value = optionAction;
+      option.textContent = CONFIG.ui.touchButtons[optionAction] || optionAction;
+      option.selected = optionAction === action;
+      select.appendChild(option);
+    }
+
+    select.addEventListener('change', () => {
+      const nextOrder = [...currentTouchButtonOrder];
+      const selectedAction = select.value;
+      const duplicateIndex = nextOrder.findIndex((value, i) => value === selectedAction && i !== index);
+      nextOrder[index] = selectedAction;
+      if (duplicateIndex >= 0) nextOrder[duplicateIndex] = action;
+      saveTouchButtonOrder(nextOrder);
+      setupTouchControls(handleTouchAction, currentTouchButtonOrder);
+      renderButtonOrderControls();
+    });
+
+    container.appendChild(select);
+  });
+}
+
+function updateViewResultButton() {
+  const button = document.getElementById('viewResultBtn');
+  if (!button) return;
+  button.disabled = !(state?.gameOver && state?.result);
 }
 
 function toggleSoundPanel(forceOpen = null) {
@@ -92,6 +161,7 @@ function startGame() {
   document.getElementById('pauseBtn').classList.remove('is-paused');
   document.body.classList.remove('game-paused');
   audio.playBgm();
+  updateViewResultButton();
   lastTimestamp = performance.now();
   loop(lastTimestamp);
 }
@@ -119,6 +189,7 @@ function resetGame() {
   document.body.classList.remove('game-paused');
   audio.stopBgm();
   render(state);
+  updateViewResultButton();
 }
 
 function loop(timestamp) {
@@ -304,6 +375,7 @@ function endGame(reason) {
   audio.playSe(reason === 'FULL_TIME' ? 'win' : 'gameOver');
   audio.stopBgm();
   render(state);
+  updateViewResultButton();
 }
 
 function submitLocalRanking() {
@@ -437,6 +509,7 @@ async function init() {
   state = createInitialState();
   await audio.init();
   render(state);
+  updateViewResultButton();
 
   document.getElementById('startBtn').addEventListener('click', startGame);
   document.getElementById('startScreenBtn').addEventListener('click', startGame);
@@ -446,9 +519,11 @@ async function init() {
   document.getElementById('retryBtn').addEventListener('click', startGame);
   document.getElementById('closeResultBtn').addEventListener('click', hideResult);
   document.getElementById('submitRankingBtn').addEventListener('click', submitLocalRanking);
+  document.getElementById('viewResultBtn').addEventListener('click', showResult);
   loadPlayerName();
   bindAudioControls();
-  setupTouchControls(handleTouchAction);
+  setupTouchControls(handleTouchAction, currentTouchButtonOrder);
+  renderButtonOrderControls();
   window.addEventListener('keydown', handleKeydown);
 }
 

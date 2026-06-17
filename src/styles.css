@@ -1353,3 +1353,139 @@ body.game-paused .board-panel {
     font-size: 9px;
   }
 }
+
+
+/* v12 mobile layout refinements */
+.menu-panel {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.menu-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.menu-heading {
+  width: 100%;
+  color: #ffdc5c;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.button-order-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+
+.button-order-select {
+  min-width: 0;
+  border: 1px solid #344158;
+  border-radius: 9px;
+  background: #0f1420;
+  color: #f2f5f8;
+  padding: 7px 4px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.secondary-button {
+  background: #273044;
+}
+
+.secondary-button:disabled {
+  opacity: 0.45;
+}
+
+@media (max-width: 820px) {
+  #app {
+    align-items: center;
+  }
+
+  .topbar,
+  .game-layout {
+    width: min(100%, 430px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .battle-panel,
+  .board-panel {
+    width: 100%;
+  }
+
+  .board {
+    width: min(86vw, 300px, calc((100dvh - 332px) / 2));
+    min-width: 188px;
+    max-height: none;
+  }
+
+  .touch-controls {
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .touch-controls button {
+    width: 100%;
+    min-width: 0;
+    min-height: 50px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .touch-drop {
+    font-size: 13px !important;
+    text-align: center;
+  }
+
+  .audio-controls.menu-panel {
+    left: 50%;
+    right: auto;
+    width: min(calc(100vw - 16px), 414px);
+    transform: translateX(-50%);
+    max-height: calc(100dvh - 64px);
+    overflow: auto;
+  }
+
+  .menu-section {
+    justify-content: center;
+  }
+
+  .menu-layout-section,
+  .menu-result-section {
+    width: 100%;
+  }
+
+  .menu-result-section .secondary-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .board {
+    width: min(84vw, 280px, calc((100dvh - 320px) / 2));
+    min-width: 176px;
+  }
+
+  .touch-controls {
+    gap: 8px;
+  }
+
+  .touch-controls button {
+    min-height: 46px;
+    border-radius: 12px;
+  }
+}

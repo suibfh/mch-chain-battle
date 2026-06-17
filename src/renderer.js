@@ -42,10 +42,10 @@ export function bindElements() {
   });
 }
 
-export function setupTouchControls(onAction) {
+export function setupTouchControls(onAction, order = CONFIG.ui.touchButtonOrder) {
   const container = document.getElementById('touchControls');
   container.innerHTML = '';
-  for (const action of CONFIG.ui.touchButtonOrder) {
+  for (const action of order) {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.action = action;
@@ -197,6 +197,12 @@ export function hideResult() {
   if (!els.resultModal) return;
   els.resultModal.classList.remove('is-open');
   els.resultModal.setAttribute('aria-hidden', 'true');
+}
+
+export function showResult() {
+  if (!els.resultModal) return;
+  els.resultModal.classList.add('is-open');
+  els.resultModal.setAttribute('aria-hidden', 'false');
 }
 
 export function getElement(name) {
