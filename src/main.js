@@ -519,7 +519,10 @@ async function init() {
   document.getElementById('retryBtn').addEventListener('click', startGame);
   document.getElementById('closeResultBtn').addEventListener('click', hideResult);
   document.getElementById('submitRankingBtn').addEventListener('click', submitLocalRanking);
-  document.getElementById('viewResultBtn').addEventListener('click', showResult);
+  document.getElementById('viewResultBtn').addEventListener('click', () => {
+    toggleSoundPanel(false);
+    showResult();
+  });
   loadPlayerName();
   bindAudioControls();
   setupTouchControls(handleTouchAction, currentTouchButtonOrder);
