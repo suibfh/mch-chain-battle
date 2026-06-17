@@ -967,3 +967,389 @@ body.game-paused .board-panel {
     font-size: 9px;
   }
 }
+
+/* Start screen */
+.start-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: radial-gradient(circle at 50% 24%, #263553 0%, #111827 54%, #080b10 100%);
+  color: #f2f5f8;
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+}
+
+.start-screen.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.start-card {
+  width: min(460px, 100%);
+  border: 1px solid #344158;
+  border-radius: 22px;
+  padding: 24px 20px;
+  background: rgba(15, 20, 32, 0.88);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  text-align: center;
+}
+
+.start-card h1 {
+  font-size: clamp(30px, 8vw, 48px);
+  margin-bottom: 10px;
+}
+
+.start-copy {
+  margin: 0 auto 20px;
+  max-width: 330px;
+  color: #dbe3f1;
+  line-height: 1.55;
+  font-weight: 800;
+}
+
+.start-screen-button {
+  width: min(260px, 80%);
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+}
+
+.start-note {
+  margin: 16px 0 0;
+  color: #aab3c2;
+  font-size: 12px;
+}
+
+.sound-btn {
+  background: #273044;
+}
+
+.sound-btn.is-open {
+  background: #35b96f;
+  color: #061017;
+}
+
+@media (max-width: 820px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    overscroll-behavior: none;
+  }
+
+  #app {
+    height: 100dvh;
+    max-width: none;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .topbar {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0;
+  }
+
+  .topbar h1 {
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .top-actions {
+    gap: 4px;
+    justify-content: end;
+  }
+
+  .top-actions button {
+    padding: 7px 8px;
+    border-radius: 9px;
+    font-size: 10px;
+  }
+
+  .audio-controls {
+    position: fixed;
+    z-index: 60;
+    left: 8px;
+    right: 8px;
+    top: 46px;
+    display: none;
+    justify-content: center;
+    padding: 8px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.36);
+  }
+
+  body.sound-open .audio-controls {
+    display: flex;
+  }
+
+  .audio-controls input[type="range"] {
+    width: 86px;
+  }
+
+  .game-layout {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .battle-panel,
+  .board-panel {
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: none;
+  }
+
+  .battle-panel {
+    flex: 0 0 auto;
+  }
+
+  .board-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .status-row {
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+
+  .status-row > div {
+    padding: 5px 3px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .battle-stage {
+    min-height: 76px;
+    grid-template-columns: 1fr 26px 1fr;
+    gap: 5px;
+    padding: 6px;
+    border-radius: 10px;
+  }
+
+  .sprite {
+    min-height: 58px;
+    gap: 2px;
+    border-width: 2px;
+    border-radius: 10px;
+  }
+
+  .sprite-name {
+    font-size: 9px;
+  }
+
+  .sprite-face {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .sprite-image {
+    width: 42px;
+    height: 42px;
+  }
+
+  .versus {
+    font-size: 11px;
+  }
+
+  .hp-area {
+    margin-top: 4px;
+  }
+
+  .bar-label {
+    font-size: 10px;
+    margin: 3px 0 2px;
+  }
+
+  .bar {
+    height: 8px;
+  }
+
+  .stats-grid {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  .stats-grid > div {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 4px 3px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
+
+  .stat-item {
+    grid-template-columns: 18px 1fr;
+    gap: 3px;
+  }
+
+  .stat-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stat-label {
+    display: none;
+  }
+
+  .log,
+  .controls-help {
+    display: none;
+  }
+
+  .board-header {
+    flex: 0 0 auto;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+
+  .next-piece .cell {
+    width: 20px;
+    height: 20px;
+  }
+
+  .board {
+    flex: 0 1 auto;
+    width: min(62vw, 218px);
+    max-height: calc(100dvh - 300px);
+    min-height: 260px;
+    margin: 0 auto;
+    border-width: 4px;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .cell {
+    border-radius: 6px;
+    font-size: 8px;
+  }
+
+  .touch-controls {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 0 10px max(6px, env(safe-area-inset-bottom));
+  }
+
+  .touch-controls button {
+    min-height: 48px;
+    padding: 7px 4px;
+    border-radius: 14px;
+    font-size: 16px;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.26);
+    touch-action: manipulation;
+  }
+
+  .touch-drop {
+    font-size: 13px !important;
+    letter-spacing: 0.02em;
+  }
+
+  .result-modal {
+    padding: 8px;
+  }
+
+  .result-card {
+    max-height: calc(100dvh - 16px);
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .result-card h2 {
+    font-size: 17px;
+  }
+
+  .result-reason {
+    font-size: 11px;
+  }
+
+  .player-name-row {
+    margin-top: 8px;
+  }
+
+  .result-score {
+    margin: 10px 0;
+    padding: 9px;
+  }
+
+  .result-score strong {
+    font-size: 26px;
+  }
+
+  .result-grid {
+    gap: 5px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .result-grid div {
+    padding: 7px 4px;
+  }
+
+  .result-grid span {
+    font-size: 9px;
+  }
+
+  .result-grid strong {
+    font-size: 13px;
+  }
+
+  .result-actions {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .result-actions button {
+    padding: 9px 8px;
+    font-size: 11px;
+  }
+
+  .ranking-status {
+    margin-bottom: 0;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .board {
+    width: min(60vw, 202px);
+    max-height: calc(100dvh - 292px);
+  }
+
+  .touch-controls button {
+    min-height: 44px;
+  }
+
+  .top-actions button {
+    padding: 6px 6px;
+    font-size: 9px;
+  }
+}

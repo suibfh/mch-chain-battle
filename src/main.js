@@ -28,6 +28,23 @@ let audioPauseWasRunning = false;
 const PLAYER_NAME_KEY = 'mchChainBattlePlayerName';
 const LOCAL_RANKING_KEY = 'mchChainBattleLocalRanking';
 
+function showStartScreen(show) {
+  const screen = document.getElementById('startScreen');
+  if (!screen) return;
+  screen.classList.toggle('is-hidden', !show);
+}
+
+function toggleSoundPanel(forceOpen = null) {
+  const shouldOpen = forceOpen === null ? !document.body.classList.contains('sound-open') : forceOpen;
+  document.body.classList.toggle('sound-open', shouldOpen);
+  const soundBtn = document.getElementById('soundBtn');
+  if (soundBtn) soundBtn.classList.toggle('is-open', shouldOpen);
+  if (shouldOpen && state?.running && !state.gameOver) {
+    setPausedState(true, 'PAUSED: 音量調整中。再開は緑のRESUMEボタン。');
+    render(state);
+  }
+}
+
 function setPausedState(paused, message = '') {
   state.paused = paused;
   const pauseBtn = document.getElementById('pauseBtn');
@@ -64,6 +81,8 @@ function createInitialState() {
 
 function startGame() {
   if (state.running && !state.gameOver) return;
+  showStartScreen(false);
+  toggleSoundPanel(false);
   hideResult();
   state = createInitialState();
   state.running = true;
@@ -90,6 +109,8 @@ function pauseGame() {
 
 function resetGame() {
   hideResult();
+  showStartScreen(true);
+  toggleSoundPanel(false);
   cancelAnimationFrame(rafId);
   state = createInitialState();
   document.getElementById('pauseBtn').disabled = true;
@@ -418,6 +439,8 @@ async function init() {
   render(state);
 
   document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('startScreenBtn').addEventListener('click', startGame);
+  document.getElementById('soundBtn').addEventListener('click', () => toggleSoundPanel());
   document.getElementById('pauseBtn').addEventListener('click', pauseGame);
   document.getElementById('resetBtn').addEventListener('click', resetGame);
   document.getElementById('retryBtn').addEventListener('click', startGame);
