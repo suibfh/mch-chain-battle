@@ -31,8 +31,6 @@ export function bindElements() {
   els.resultHp = document.getElementById('resultHp');
   els.resultPhy = document.getElementById('resultPhy');
   els.resultInt = document.getElementById('resultInt');
-  els.playerNameInput = document.getElementById('playerNameInput');
-  els.rankingStatus = document.getElementById('rankingStatus');
   els.heroSprite = document.getElementById('heroSprite');
   els.bossSprite = document.getElementById('bossSprite');
 
