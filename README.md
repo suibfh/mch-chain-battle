@@ -149,3 +149,6 @@ assets/audio/win.mp3
 - NEXT用セルを2個だけ生成して使い回す構造に変更しました。
 - NEXT表示のエクステ画像も`next-cell-art.style.backgroundImage`で直接描画する構造を維持しました。
 - プレイ中だけNEXT画像が色付き四角になる問題を修正しました。
+## v25 update
+- Ranking column label changed from MAX to CHAIN for clearer meaning.
+- Board tap now starts a new run after game over when the TAP TO START prompt is visible.
