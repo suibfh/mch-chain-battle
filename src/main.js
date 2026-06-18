@@ -205,7 +205,22 @@ function toggleSoundPanel(forceOpen = null) {
   const soundBtn = document.getElementById('soundBtn');
   if (soundBtn) soundBtn.classList.toggle('is-open', shouldOpen);
   if (shouldOpen && state?.running && !state.gameOver) {
-    setPausedState(true, 'PAUSED: 音量調整中。再開は緑のRESUMEボタン。');
+    setPausedState(true, 'PAUSED: MENU open. Tap the board or RESUME to continue.');
+    render(state);
+  }
+}
+
+function handleBoardTapStartResume() {
+  if (!state || state.gameOver) return;
+  if (!state.running) {
+    startGame();
+    return;
+  }
+  if (state.paused) {
+    toggleSoundPanel(false);
+    setPausedState(false, 'Battle resumed!');
+    lastTimestamp = performance.now();
+    loop(lastTimestamp);
     render(state);
   }
 }
@@ -617,7 +632,11 @@ async function init() {
 
   document.getElementById('startBtn').addEventListener('click', startGame);
   document.getElementById('startScreenBtn').addEventListener('click', setAppScreenReady);
-  document.getElementById('soundBtn').addEventListener('click', () => toggleSoundPanel());
+  document.getElementById('soundBtn').addEventListener('click', event => {
+    event.stopPropagation();
+    toggleSoundPanel();
+  });
+  document.getElementById('board').addEventListener('click', handleBoardTapStartResume);
   document.getElementById('homeRankingBtn').addEventListener('click', showRanking);
   document.getElementById('howToBtn').addEventListener('click', showHelp);
   document.getElementById('viewRankingBtn').addEventListener('click', showRanking);
@@ -637,6 +656,18 @@ async function init() {
   setupTouchControls(handleTouchAction, currentTouchButtonOrder);
   renderButtonOrderControls();
   window.addEventListener('keydown', handleKeydown);
+  document.addEventListener('click', event => {
+    if (!document.body.classList.contains('sound-open')) return;
+    const panel = document.getElementById('audioControls');
+    const button = document.getElementById('soundBtn');
+    if (panel?.contains(event.target) || button?.contains(event.target)) return;
+    toggleSoundPanel(false);
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.body.classList.contains('sound-open')) {
+      toggleSoundPanel(false);
+    }
+  });
 }
 
 init();

@@ -1694,3 +1694,100 @@ body.game-ready .board-panel {
     font-size: 11px;
   }
 }
+
+/* v15 board start/resume overlay and unified menu popover */
+.topbar {
+  position: relative;
+}
+
+.audio-controls.menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 95;
+  width: min(390px, calc(100vw - 16px));
+  display: none;
+  align-items: stretch;
+  white-space: normal;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.42);
+}
+
+body.sound-open .audio-controls.menu-panel {
+  display: flex;
+}
+
+.board {
+  position: relative;
+  cursor: pointer;
+}
+
+.board::before,
+.board::after {
+  pointer-events: none;
+}
+
+body.game-ready .board::before,
+body.game-paused .board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 7px;
+  background: rgba(5, 8, 13, 0.38);
+  backdrop-filter: blur(1px);
+}
+
+body.game-ready .board::after,
+body.game-paused .board::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 6;
+  transform: translate(-50%, -50%);
+  min-width: 72%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 220, 92, 0.55);
+  border-radius: 14px;
+  background: rgba(15, 20, 32, 0.78);
+  color: #f2f5f8;
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.34);
+  animation: boardPromptPulse 1.45s ease-in-out infinite;
+}
+
+body.game-ready .board::after {
+  content: "TAP TO START";
+}
+
+body.game-paused .board::after {
+  content: "PAUSED\A TAP TO RESUME";
+  white-space: pre;
+}
+
+@keyframes boardPromptPulse {
+  0%, 100% { opacity: 0.82; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.025); }
+}
+
+@media (max-width: 820px) {
+  .audio-controls.menu-panel {
+    position: fixed;
+    top: 46px;
+    left: 50%;
+    right: auto;
+    width: min(calc(100vw - 16px), 414px);
+    transform: translateX(-50%);
+    max-height: calc(100dvh - 64px);
+    overflow: auto;
+  }
+
+  body.game-ready .board::after,
+  body.game-paused .board::after {
+    min-width: 78%;
+    padding: 10px 12px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+}

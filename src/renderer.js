@@ -148,7 +148,7 @@ function renderStatus(state) {
   const remaining = Math.max(0, Math.ceil(state.timeLeft));
   els.timeText.textContent = String(remaining);
   els.scoreText.textContent = Math.floor(state.score).toLocaleString();
-  els.chainText.textContent = String(state.lastChain);
+  els.chainText.textContent = String(state.maxChain ?? 0);
 
   els.heroHpText.textContent = `${Math.ceil(state.hero.hp)} / ${state.hero.maxHp}`;
   els.heroHpBar.style.width = `${Math.max(0, state.hero.hp / state.hero.maxHp * 100)}%`;
