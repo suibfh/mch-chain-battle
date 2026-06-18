@@ -27,6 +27,8 @@ let rafId = null;
 let audioPauseWasRunning = false;
 const PLAYER_NAME_KEY = 'mchChainBattlePlayerName';
 const LOCAL_RANKING_KEY = 'mchChainBattleLocalRanking';
+const DEVICE_ID_KEY = 'mchChainBattleDeviceId';
+const RANKING_LIMIT = 10;
 const TOUCH_BUTTON_ORDER_KEY = 'mchChainBattleTouchButtonOrder';
 const TOUCH_ACTIONS = ['left', 'drop', 'rotate', 'right'];
 let currentTouchButtonOrder = loadTouchButtonOrder();
@@ -180,6 +182,83 @@ function showHelp() {
   modal.setAttribute('aria-hidden', 'false');
 }
 
+function getDeviceId() {
+  let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+  if (deviceId) return deviceId;
+
+  if (window.crypto?.randomUUID) {
+    deviceId = window.crypto.randomUUID();
+  } else {
+    deviceId = `device_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
+  }
+  localStorage.setItem(DEVICE_ID_KEY, deviceId);
+  return deviceId;
+}
+
+function getSupabaseConfig() {
+  const supabase = CONFIG.supabase || {};
+  const url = String(supabase.url || '').replace(/\/+$/, '');
+  const anonKey = String(supabase.anonKey || '').trim();
+  const table = String(supabase.table || 'rankings').trim();
+  if (!url || !anonKey || !table) return null;
+  return { url, anonKey, table };
+}
+
+function getSupabaseHeaders(extra = {}) {
+  const config = getSupabaseConfig();
+  return {
+    apikey: config.anonKey,
+    Authorization: `Bearer ${config.anonKey}`,
+    'Content-Type': 'application/json',
+    ...extra,
+  };
+}
+
+function getSupabaseEndpoint(query = '') {
+  const config = getSupabaseConfig();
+  return `${config.url}/rest/v1/${config.table}${query}`;
+}
+
+function normalizePlayerName(value) {
+  return (value || 'Player').trim().replace(/\s+/g, ' ').slice(0, 16) || 'Player';
+}
+
+function toRankingViewEntry(entry) {
+  return {
+    playerName: entry.playerName || entry.name || 'Player',
+    score: Number(entry.score || 0),
+    bossLevel: Number(entry.bossLevel ?? entry.boss_level ?? 1),
+    maxChain: Number(entry.maxChain ?? entry.max_chain ?? 0),
+    updatedAt: entry.updatedAt || entry.updated_at || entry.createdAt || entry.created_at || '',
+  };
+}
+
+function isBetterRankingEntry(nextEntry, currentEntry) {
+  const next = toRankingViewEntry(nextEntry);
+  const current = toRankingViewEntry(currentEntry);
+  if (next.score !== current.score) return next.score > current.score;
+  if (next.bossLevel !== current.bossLevel) return next.bossLevel > current.bossLevel;
+  if (next.maxChain !== current.maxChain) return next.maxChain > current.maxChain;
+  return false;
+}
+
+function compareRankingEntries(aEntry, bEntry) {
+  const a = toRankingViewEntry(aEntry);
+  const b = toRankingViewEntry(bEntry);
+  if (b.score !== a.score) return b.score - a.score;
+  if (b.bossLevel !== a.bossLevel) return b.bossLevel - a.bossLevel;
+  if (b.maxChain !== a.maxChain) return b.maxChain - a.maxChain;
+  return String(a.updatedAt || '').localeCompare(String(b.updatedAt || ''));
+}
+
+function sortRankingEntries(entries) {
+  return [...entries].map(toRankingViewEntry).sort(compareRankingEntries);
+}
+
+function sortRankingRawEntries(entries) {
+  return [...entries].sort(compareRankingEntries);
+}
+
 function getLocalRankings() {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_RANKING_KEY) || '[]');
@@ -188,15 +267,82 @@ function getLocalRankings() {
   }
 }
 
-function renderRankingList() {
-  const list = document.getElementById('rankingList');
-  if (!list) return;
-  const rankings = getLocalRankings().slice(0, 10);
-  if (rankings.length === 0) {
-    list.innerHTML = '<div class="ranking-empty">まだ登録されたスコアはありません。</div>';
-    return;
+function saveLocalRanking(entry) {
+  const rankings = getLocalRankings();
+  const index = rankings.findIndex(item => item.deviceId === entry.deviceId && item.playerName === entry.playerName);
+  if (index >= 0) {
+    if (!isBetterRankingEntry(entry, rankings[index])) {
+      return { saved: false, reason: 'not_best' };
+    }
+    rankings[index] = entry;
+  } else {
+    rankings.push(entry);
   }
-  list.innerHTML = `
+  const sorted = sortRankingRawEntries(rankings).slice(0, 20);
+  localStorage.setItem(LOCAL_RANKING_KEY, JSON.stringify(sorted));
+  return { saved: true, reason: index >= 0 ? 'updated' : 'inserted' };
+}
+
+async function fetchSupabaseRankings() {
+  if (!getSupabaseConfig()) return null;
+  const query = '?select=name,score,boss_level,max_chain,updated_at&order=score.desc,boss_level.desc,max_chain.desc,updated_at.asc&limit=10';
+  const response = await fetch(getSupabaseEndpoint(query), {
+    method: 'GET',
+    headers: getSupabaseHeaders(),
+  });
+  if (!response.ok) throw new Error(`Supabase ranking fetch failed: ${response.status}`);
+  const rows = await response.json();
+  return rows.map(toRankingViewEntry);
+}
+
+async function upsertSupabaseRanking(entry) {
+  if (!getSupabaseConfig()) return null;
+
+  const deviceId = encodeURIComponent(entry.deviceId);
+  const name = encodeURIComponent(entry.playerName);
+  const selectQuery = `?select=id,score,boss_level,max_chain,updated_at&device_id=eq.${deviceId}&name=eq.${name}&limit=1`;
+  const existingResponse = await fetch(getSupabaseEndpoint(selectQuery), {
+    method: 'GET',
+    headers: getSupabaseHeaders(),
+  });
+  if (!existingResponse.ok) throw new Error(`Supabase ranking lookup failed: ${existingResponse.status}`);
+  const existingRows = await existingResponse.json();
+  const existing = existingRows[0];
+  const now = new Date().toISOString();
+  const payload = {
+    device_id: entry.deviceId,
+    name: entry.playerName,
+    score: entry.score,
+    boss_level: entry.bossLevel,
+    max_chain: entry.maxChain,
+    updated_at: now,
+  };
+
+  if (existing && !isBetterRankingEntry(entry, existing)) {
+    return { saved: false, reason: 'not_best' };
+  }
+
+  if (existing) {
+    const updateResponse = await fetch(getSupabaseEndpoint(`?id=eq.${encodeURIComponent(existing.id)}`), {
+      method: 'PATCH',
+      headers: getSupabaseHeaders({ Prefer: 'return=minimal' }),
+      body: JSON.stringify(payload),
+    });
+    if (!updateResponse.ok) throw new Error(`Supabase ranking update failed: ${updateResponse.status}`);
+    return { saved: true, reason: 'updated' };
+  }
+
+  const insertResponse = await fetch(getSupabaseEndpoint(''), {
+    method: 'POST',
+    headers: getSupabaseHeaders({ Prefer: 'return=minimal' }),
+    body: JSON.stringify({ ...payload, created_at: now }),
+  });
+  if (!insertResponse.ok) throw new Error(`Supabase ranking insert failed: ${insertResponse.status}`);
+  return { saved: true, reason: 'inserted' };
+}
+
+function renderRankingRows(rankings) {
+  return `
     <div class="ranking-header" aria-hidden="true">
       <span></span>
       <span>NAME</span>
@@ -213,6 +359,38 @@ function renderRankingList() {
       <span class="ranking-score"><span class="ranking-label">SCORE</span> ${Number(entry.score || 0).toLocaleString()}</span>
     </div>
   `).join('');
+}
+
+function setRankingNote(message) {
+  const note = document.getElementById('rankingNote');
+  if (note) note.textContent = message;
+}
+
+async function renderRankingList() {
+  const list = document.getElementById('rankingList');
+  if (!list) return;
+  list.innerHTML = '<div class="ranking-empty">ランキングを読み込み中...</div>';
+
+  try {
+    const onlineRankings = await fetchSupabaseRankings();
+    if (onlineRankings) {
+      const rankings = sortRankingEntries(onlineRankings).slice(0, RANKING_LIMIT);
+      setRankingNote('オンラインランキングを表示中です。');
+      list.innerHTML = rankings.length ? renderRankingRows(rankings) : '<div class="ranking-empty">まだ登録されたスコアはありません。</div>';
+      return;
+    }
+  } catch (error) {
+    console.warn(error);
+    setRankingNote('オンラインランキングを取得できないため、端末内ランキングを表示しています。');
+  }
+
+  const rankings = sortRankingEntries(getLocalRankings()).slice(0, RANKING_LIMIT);
+  if (rankings.length === 0) {
+    list.innerHTML = '<div class="ranking-empty">まだ登録されたスコアはありません。</div>';
+    return;
+  }
+  if (!getSupabaseConfig()) setRankingNote('Supabase未設定のため、端末内ランキングを表示しています。');
+  list.innerHTML = renderRankingRows(rankings);
 }
 
 function escapeHtml(value) {
@@ -547,29 +725,56 @@ function endGame(reason) {
   updateViewResultButton();
 }
 
-function submitLocalRanking() {
+async function submitLocalRanking() {
   if (!state?.gameOver || !state.result) return;
   const input = document.getElementById('playerNameInput');
   const status = document.getElementById('rankingStatus');
-  const name = (input.value || 'Player').trim().slice(0, 16) || 'Player';
+  const button = document.getElementById('submitRankingBtn');
+  const name = normalizePlayerName(input.value);
+  input.value = name;
   localStorage.setItem(PLAYER_NAME_KEY, name);
 
   const entry = {
+    deviceId: getDeviceId(),
     playerName: name,
     score: Math.floor(state.score),
     bossLevel: state.boss.level,
     defeatedCount: state.defeatedCount,
     maxChain: state.maxChain,
     result: state.result.label,
+    updatedAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   };
 
-  const rankings = JSON.parse(localStorage.getItem(LOCAL_RANKING_KEY) || '[]');
-  rankings.push(entry);
-  rankings.sort((a, b) => b.score - a.score);
-  localStorage.setItem(LOCAL_RANKING_KEY, JSON.stringify(rankings.slice(0, 20)));
-  status.textContent = 'LOCAL RANKING SAVED. Supabase接続後にオンライン登録へ切り替えます。';
-  renderRankingList();
+  if (button) button.disabled = true;
+  if (status) status.textContent = 'ランキング送信中...';
+
+  const localResult = saveLocalRanking(entry);
+
+  try {
+    const onlineResult = await upsertSupabaseRanking(entry);
+    if (onlineResult) {
+      if (status) {
+        status.textContent = onlineResult.saved
+          ? 'ONLINE RANKING SAVED.'
+          : '自己ベスト未満のため、オンラインランキングは更新されませんでした。';
+      }
+    } else if (status) {
+      status.textContent = localResult.saved
+        ? 'LOCAL RANKING SAVED. Supabaseを設定するとオンライン登録されます。'
+        : '自己ベスト未満のため、ローカルランキングは更新されませんでした。';
+    }
+  } catch (error) {
+    console.warn(error);
+    if (status) {
+      status.textContent = localResult.saved
+        ? 'オンライン送信に失敗しました。端末内ランキングには保存しました。'
+        : 'オンライン送信に失敗しました。自己ベスト未満のため端末内ランキングも更新されませんでした。';
+    }
+  } finally {
+    if (button) button.disabled = false;
+    renderRankingList();
+  }
 }
 
 function loadPlayerName() {

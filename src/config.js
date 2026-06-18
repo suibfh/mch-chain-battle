@@ -88,6 +88,16 @@ export const CONFIG = {
     },
   },
 
+  supabase: {
+    // Supabase接続後に以下2つを設定してください。
+    // url: 'https://xxxx.supabase.co',
+    // anonKey: 'public-anon-key',
+    url: '',
+    anonKey: '',
+    table: 'rankings',
+  },
+
+
   types: {
     HP: {
       label: 'HP',
