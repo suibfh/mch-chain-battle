@@ -1,6 +1,6 @@
 # MCH Chain Battle
 
-Version: v24
+Version: v26
 
 MCH Chain Battle のブラウザゲームです。
 
@@ -152,3 +152,10 @@ assets/audio/win.mp3
 ## v25 update
 - Ranking column label changed from MAX to CHAIN for clearer meaning.
 - Board tap now starts a new run after game over when the TAP TO START prompt is visible.
+
+
+## v26 update
+
+- Ready状態で表示されている盤面・現在ぷよ・NEXTぷよを、START後もそのまま引き継ぐようにしました。
+- START時に毎回 `createInitialState()` で作り直す処理をやめ、ゲームオーバー後のリトライ時だけ新しいstateを生成するようにしました。
+- 待機中にうっすら見えるぷよと、開始後のぷよが一致するようにしました。
