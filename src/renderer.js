@@ -187,11 +187,36 @@ function updateBoardCell(div, cell, isActive, isClearing) {
   if (isClearing) div.classList.add('clearing');
 }
 
+function makePreviewCell(cell) {
+  const div = document.createElement('div');
+  div.className = 'next-cell';
+  if (!cell) return div;
+
+  const typeConfig = CONFIG.types[cell.type];
+  div.classList.add('filled');
+  div.style.setProperty('--cell-color', typeConfig.color);
+
+  if (typeConfig.asset) {
+    div.classList.add('has-image');
+    const art = document.createElement('span');
+    art.className = 'next-cell-art';
+    art.setAttribute('aria-hidden', 'true');
+    art.style.backgroundImage = `url("${typeConfig.asset}")`;
+    div.appendChild(art);
+  }
+
+  const label = document.createElement('span');
+  label.className = 'next-cell-label';
+  label.textContent = typeConfig.text;
+  div.appendChild(label);
+  return div;
+}
+
 function renderNext(piece) {
   els.nextPiece.innerHTML = '';
   if (!piece) return;
   for (const cell of [piece.pivot, piece.child]) {
-    els.nextPiece.appendChild(makeCell(cell, true));
+    els.nextPiece.appendChild(makePreviewCell(cell));
   }
 }
 
