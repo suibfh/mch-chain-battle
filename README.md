@@ -1,6 +1,6 @@
 # MCH Chain Battle
 
-Version: v26
+Version: v28
 
 MCH Chain Battle のブラウザゲームです。
 
@@ -33,12 +33,6 @@ Space: 即落下
 
 スマホボタンの順番は `src/config.js` の `CONFIG.ui.touchButtonOrder` で変更できます。
 
-```js
-ui: {
-  touchButtonOrder: ['left', 'drop', 'rotate', 'right']
-}
-```
-
 ## Assets
 
 ```text
@@ -55,107 +49,57 @@ assets/audio/clear.mp3
 assets/audio/win.mp3
 ```
 
+## Current UI
+
+- ホーム画面は START のみ表示
+- MENU には SOUND / BUTTON ORDER / HOW TO PLAY / VIEW RESULT を表示
+- リザルト画面は今回の記録確認用に整理
+- ランキング機能、名前入力、ランキング送信、Supabase設定は削除
+
+## Result screen
+
+```text
+RESULT
+SCORE
+BOSS Lv
+DEFEATED
+MAX CHAIN
+HP
+PHY
+INT
+RETRY
+BACK TO TITLE
+```
+
 ## Recent changes
 
-- スマホ仮想ボタンを設定順で生成するように変更
-- デフォルト順を `◀ / DROP / ↻ / ▶` に変更
-- ステータス欄を文字中心から小さいエクステアイコン付き表示に変更
-- 被弾モーションをキャラ揺れではなくHPバー揺れに変更
-- リザルトモーダルを追加
-- リザルト表示に `FULL TIME CLEAR / HERO DOWN / BOARD FULL` を追加
-- プレイヤーネーム入力をリザルト上部に追加
-- プレイヤーネームを同一端末で保持
-- `SUBMIT RANKING` ボタンを追加。現段階ではlocalStorageへのローカル保存。Supabase接続後にオンラインランキング化予定
-- スマホ縦画面でリザルトが縦長になりすぎないよう圧縮
+### v28
 
+- ランキング機能を削除しました。
+- Supabaseオンラインランキング関連の設定・処理を削除しました。
+- ローカルランキング保存処理を削除しました。
+- ホーム画面とMENUからランキング導線を削除しました。
+- リザルト画面からプレイヤー名入力とSUBMIT RANKINGを削除しました。
+- リザルト画面にBACK TO TITLEボタンを追加しました。
 
-## v13 changes
+### v27
 
-- MENU の VIEW RESULT からリザルトを開くとき、MENU パネルを自動で閉じるようにしました。
-- リザルトモーダルの重なり順を上げ、他UIの背面に隠れないようにしました。
+- Supabaseを使ったオンラインランキング登録に対応しました。
+- v28でランキング機能を削除したため、現在は使用していません。
 
-## v14 changes
-
-- ホームのSTARTはゲーム画面への遷移のみに変更しました。
-- ゲーム画面へ進んだ後、緑色のSTARTボタンを押すまでゲームが始まらないようにしました。
-- ホーム画面の操作説明テキストを削除しました。
-- MENU内にHOW TO PLAYを追加しました。
-- ホーム画面とMENUからRANKINGを開けるようにしました。
-- ローカルランキング画面を追加しました。現段階ではlocalStorage保存のランキングを表示します。
-- START待機中のゲーム画面が分かるように、盤面まわりとSTARTボタンを強調表示しました。
-
-
-## v15 changes
-- Board tap starts the game from the ready state.
-- Board tap resumes from pause.
-- Board overlay shows TAP TO START / TAP TO RESUME.
-- Board header now shows MAX chain instead of previous chain.
-- MENU is now a popover on PC instead of an always-open panel.
-
-## v16 update
-- 通常プレイ中のエクステぷよ画像レイヤーを修正しました。
-- スマホ表示時の強化ボスバッジを小型化し、ボス名と重なりにくくしました。
-
-
-## v17 更新
-
-- ランキング表示を「名前 / ボスLv / 最大連鎖 / スコア」の順に変更
-- ランキングに見出しを追加し、各数字の意味が分かるように調整
-- ランキング表示はトップ10件に制限
-
-
-## 更新履歴
-
-### v21
-- 盤面セルDOMを毎フレーム全再生成しない差分更新方式に変更
-- エクステぷよ画像を cell-art の CSS background-image 表示に一本化
-- 表示用 img の二重描画を削除し、プリロード済み画像を利用する設計に整理
-
-
-
-- v18: 通常プレイ中のエクステぷよ画像表示を背景レイヤー方式でも描画するように修正。
-
-
-## v19 更新
-
-- 通常プレイ中だけエクステ画像が表示されない問題に対し、エクステ・ヒーロー・ボス画像を起動時にプリロードする処理を追加。
-- v18で追加した二重描画の背景画像レイヤーを削除し、セル内の画像表示を`img.cell-image`に一本化。
-- 画像が読み込めない場合だけ文字表示に戻るよう整理。
-
-## v20 update
-
-- エクステぷよ画像をCSS background-imageの`.cell-art`で描画する方式に変更しました。
-- `img`は表示用ではなく読み込み失敗検知用の`.cell-image-probe`として整理しました。
-- 通常プレイ中の毎フレームDOM再生成でも画像表示が安定しやすいようにしました。
-
-
-## v22 changes
-
-- Kept reused board cell DOM rendering.
-- Changed extension cell images to set `cell-art.style.backgroundImage` directly instead of using `--cell-image`.
-- Removed redundant `cell-art` width/height sizing and CSS variable background-image usage.
-
-
-## v23 changes
-
-- NEXT表示のぷよを盤面セルとは別の専用DOMに変更しました。
-- NEXT表示も`next-cell-art.style.backgroundImage`でエクステ画像を直接描画するようにしました。
-- 盤面とNEXTの画像表示方式を揃え、色付き四角だけになる問題を修正しました。
-
-
-## v24 changes
-
-- NEXT表示のDOMも毎フレーム全再生成しない差分更新方式に変更しました。
-- NEXT用セルを2個だけ生成して使い回す構造に変更しました。
-- NEXT表示のエクステ画像も`next-cell-art.style.backgroundImage`で直接描画する構造を維持しました。
-- プレイ中だけNEXT画像が色付き四角になる問題を修正しました。
-## v25 update
-- Ranking column label changed from MAX to CHAIN for clearer meaning.
-- Board tap now starts a new run after game over when the TAP TO START prompt is visible.
-
-
-## v26 update
+### v26
 
 - Ready状態で表示されている盤面・現在ぷよ・NEXTぷよを、START後もそのまま引き継ぐようにしました。
 - START時に毎回 `createInitialState()` で作り直す処理をやめ、ゲームオーバー後のリトライ時だけ新しいstateを生成するようにしました。
 - 待機中にうっすら見えるぷよと、開始後のぷよが一致するようにしました。
+
+### v24
+
+- NEXT表示のDOMも毎フレーム全再生成しない差分更新方式に変更しました。
+- NEXT用セルを2個だけ生成して使い回す構造に変更しました。
+- プレイ中だけNEXT画像が色付き四角になる問題を修正しました。
+
+### v22
+
+- 盤面セルDOMを使い回す差分更新方式を維持しました。
+- エクステぷよ画像を `cell-art.style.backgroundImage` に直接指定する方式に変更しました。

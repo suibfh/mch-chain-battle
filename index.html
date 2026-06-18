@@ -12,7 +12,6 @@
       <h1>MCH Chain Battle</h1>
       <p class="start-copy">エクステを4つつなげてヒーロー強化、迫り来るボスを倒せ！</p>
       <button id="startScreenBtn" class="start-screen-button" type="button">START</button>
-      <button id="homeRankingBtn" class="start-secondary-button" type="button">RANKING</button>
     </section>
   </div>
 
@@ -41,9 +40,6 @@
         </div>
         <div class="menu-section menu-help-section">
           <button id="howToBtn" class="secondary-button" type="button">HOW TO PLAY</button>
-        </div>
-        <div class="menu-section menu-ranking-section">
-          <button id="viewRankingBtn" class="secondary-button" type="button">RANKING</button>
         </div>
         <div class="menu-section menu-result-section">
           <button id="viewResultBtn" class="secondary-button" type="button" disabled>VIEW RESULT</button>
@@ -117,10 +113,6 @@
         <button id="closeResultBtn" class="result-close" type="button" aria-label="close result">×</button>
       </div>
 
-      <label class="player-name-row">
-        <span>PLAYER NAME</span>
-        <input id="playerNameInput" type="text" maxlength="16" placeholder="Player" autocomplete="nickname" />
-      </label>
 
       <div class="result-score">
         <span>SCORE</span>
@@ -137,10 +129,9 @@
       </div>
 
       <div class="result-actions">
-        <button id="submitRankingBtn" type="button">SUBMIT RANKING</button>
         <button id="retryBtn" type="button">RETRY</button>
+        <button id="backToTitleBtn" class="secondary-result-button" type="button">BACK TO TITLE</button>
       </div>
-      <p id="rankingStatus" class="ranking-status">Supabase未設定時は端末内保存、設定後はオンラインランキングへ送信します。</p>
     </section>
   </div>
 
@@ -162,21 +153,6 @@
         <p>強化されたヒーローが自動でボスを攻撃します。</p>
         <p>180秒生き残るか、より高いBOSS Lvを目指してください。</p>
       </div>
-    </section>
-  </div>
-
-  <div id="rankingModal" class="info-modal" aria-hidden="true">
-    <div class="info-backdrop"></div>
-    <section class="info-card ranking-card" role="dialog" aria-modal="true" aria-labelledby="rankingTitle">
-      <div class="info-top">
-        <div>
-          <div class="info-kicker">LOCAL</div>
-          <h2 id="rankingTitle">RANKING</h2>
-        </div>
-        <button id="closeRankingBtn" class="result-close" type="button" aria-label="close ranking">×</button>
-      </div>
-      <div id="rankingList" class="ranking-list"></div>
-      <p id="rankingNote" class="ranking-note">Supabase未設定時は端末内ランキングを表示します。</p>
     </section>
   </div>
 
