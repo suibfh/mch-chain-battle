@@ -1673,7 +1673,7 @@ body.game-ready .board-panel {
 .ranking-header,
 .ranking-row {
   display: grid;
-  grid-template-columns: 38px minmax(80px, 1fr) 74px 64px 96px;
+  grid-template-columns: 38px minmax(80px, 1fr) 74px 72px 96px;
   align-items: center;
   gap: 8px;
 }
@@ -1771,7 +1771,7 @@ body.game-ready .board-panel {
 
   .ranking-header,
   .ranking-row {
-    grid-template-columns: 30px minmax(62px, 1fr) 48px 38px 74px;
+    grid-template-columns: 30px minmax(56px, 1fr) 48px 46px 74px;
     gap: 5px;
   }
 
