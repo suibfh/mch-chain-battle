@@ -308,8 +308,17 @@ function startGame() {
   hideResult();
   hideHelp();
   hideRanking();
-  state = createInitialState();
+
+  // Ready状態の盤面・現在ぷよ・NEXTぷよをそのまま使って開始する。
+  // ゲームオーバー後のリトライ時だけ新しいstateを生成する。
+  if (state.gameOver) {
+    state = createInitialState();
+  }
+
+  cancelAnimationFrame(rafId);
   state.running = true;
+  state.paused = false;
+  state.gameOver = false;
   state.log = 'Battle Start!';
   document.getElementById('pauseBtn').disabled = false;
   document.getElementById('pauseBtn').textContent = 'PAUSE';
