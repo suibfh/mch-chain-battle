@@ -31,6 +31,39 @@ const TOUCH_BUTTON_ORDER_KEY = 'mchChainBattleTouchButtonOrder';
 const TOUCH_ACTIONS = ['left', 'drop', 'rotate', 'right'];
 let currentTouchButtonOrder = loadTouchButtonOrder();
 
+function bossImagePathForPreload(index) {
+  return `${CONFIG.images.bossDir}/${CONFIG.images.bossPrefix}${String(index).padStart(2, '0')}.${CONFIG.images.bossExt}`;
+}
+
+function preloadImage(src) {
+  return new Promise(resolve => {
+    if (!src) {
+      resolve();
+      return;
+    }
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+async function preloadAssets() {
+  const extensionImages = Object.values(CONFIG.types).map(type => type.asset);
+  const bossImages = Array.from(
+    { length: CONFIG.boss.imageCount },
+    (_, index) => bossImagePathForPreload(index + 1)
+  );
+  const urls = [
+    CONFIG.images.hero,
+    CONFIG.images.background,
+    ...extensionImages,
+    ...bossImages,
+  ].filter(Boolean);
+
+  await Promise.all(urls.map(preloadImage));
+}
+
 function showStartScreen(show) {
   const screen = document.getElementById('startScreen');
   if (!screen) return;
@@ -633,6 +666,7 @@ function bindAudioControls() {
 }
 
 async function init() {
+  await preloadAssets();
   bindElements();
   state = createInitialState();
   await audio.init();

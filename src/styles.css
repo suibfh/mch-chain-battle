@@ -387,26 +387,14 @@ body.game-paused .board-panel {
   background: var(--cell-color);
 }
 
-.cell-art,
 .cell-image {
   position: absolute;
   inset: 3px;
   z-index: 3;
   width: calc(100% - 6px);
   height: calc(100% - 6px);
-  pointer-events: none;
-}
-
-.cell-art {
-  display: block;
-  background-image: var(--cell-image);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-}
-
-.cell-image {
   object-fit: contain;
+  pointer-events: none;
 }
 
 .cell-label {
@@ -416,16 +404,6 @@ body.game-paused .board-panel {
 
 .cell.has-image .cell-label {
   display: none;
-}
-
-.cell.has-image.filled::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: inherit;
-  background: var(--cell-color);
-  opacity: 0.82;
 }
 
 .sprite-image {
@@ -502,8 +480,7 @@ body.game-paused .board-panel {
   z-index: 2;
 }
 
-.cell.clearing .cell-image,
-.cell.clearing .cell-art {
+.cell.clearing .cell-image {
   animation: clearImagePop 0.18s ease-out forwards;
 }
 
