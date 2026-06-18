@@ -1,5 +1,7 @@
 # MCH Chain Battle
 
+Version: v22
+
 MCH Chain Battle のブラウザゲームです。
 
 ## 起動
@@ -125,3 +127,10 @@ assets/audio/win.mp3
 - エクステぷよ画像をCSS background-imageの`.cell-art`で描画する方式に変更しました。
 - `img`は表示用ではなく読み込み失敗検知用の`.cell-image-probe`として整理しました。
 - 通常プレイ中の毎フレームDOM再生成でも画像表示が安定しやすいようにしました。
+
+
+## v22 changes
+
+- Kept reused board cell DOM rendering.
+- Changed extension cell images to set `cell-art.style.backgroundImage` directly instead of using `--cell-image`.
+- Removed redundant `cell-art` width/height sizing and CSS variable background-image usage.
