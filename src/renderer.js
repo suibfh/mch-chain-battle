@@ -82,12 +82,23 @@ function makeCell(cell, isActive = false, isClearing = false) {
     const typeConfig = CONFIG.types[cell.type];
     div.classList.add('filled');
     div.style.setProperty('--cell-color', typeConfig.color);
-    div.textContent = typeConfig.text;
+
+    const label = document.createElement('span');
+    label.className = 'cell-label';
+    label.textContent = typeConfig.text;
+
     if (typeConfig.asset) {
+      div.classList.add('has-image');
       const img = makeAssetImg(typeConfig.asset, typeConfig.label);
       img.className = 'cell-image';
+      img.onerror = () => {
+        img.remove();
+        div.classList.remove('has-image');
+      };
       div.appendChild(img);
     }
+
+    div.appendChild(label);
   }
   if (isActive) div.classList.add('active');
   if (isClearing) div.classList.add('clearing');
@@ -158,14 +169,14 @@ function renderStatus(state) {
 
   els.bossLevelText.textContent = String(state.boss.level);
   const bossNo = String(state.boss.imageIndex).padStart(2, '0');
-  const enhancedLabel = state.boss.powerTier > 0 ? ` +${state.boss.powerTier}` : '';
-  els.bossNameText.textContent = `BOSS ${bossNo}${enhancedLabel}`;
+  els.bossNameText.textContent = `BOSS ${bossNo}`;
   els.bossFaceText.textContent = state.boss.powerTier > 0 ? `B${state.boss.imageIndex}+${state.boss.powerTier}` : `B${state.boss.imageIndex}`;
 
   setSpriteImage(els.heroSprite, els.heroSprite.querySelector('.sprite-face'), CONFIG.images.hero, 'H', 'Hero');
   setSpriteImage(els.bossSprite, els.bossFaceText, bossImagePath(state.boss.imageIndex), els.bossFaceText.textContent, 'Boss');
   els.bossSprite.dataset.powerTier = String(state.boss.powerTier);
   els.bossSprite.dataset.powerLabel = state.boss.powerTier > 0 ? `ENHANCED +${state.boss.powerTier}` : '';
+  els.bossSprite.dataset.powerShortLabel = state.boss.powerTier > 0 ? `+${state.boss.powerTier}` : '';
 
   els.statHpText.textContent = Math.ceil(state.hero.maxHp);
   els.statPhyText.textContent = state.hero.phy.toFixed(1);
