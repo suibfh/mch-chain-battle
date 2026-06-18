@@ -1,6 +1,6 @@
 # MCH Chain Battle
 
-Version: v23
+Version: v24
 
 MCH Chain Battle のブラウザゲームです。
 
@@ -141,3 +141,11 @@ assets/audio/win.mp3
 - NEXT表示のぷよを盤面セルとは別の専用DOMに変更しました。
 - NEXT表示も`next-cell-art.style.backgroundImage`でエクステ画像を直接描画するようにしました。
 - 盤面とNEXTの画像表示方式を揃え、色付き四角だけになる問題を修正しました。
+
+
+## v24 changes
+
+- NEXT表示のDOMも毎フレーム全再生成しない差分更新方式に変更しました。
+- NEXT用セルを2個だけ生成して使い回す構造に変更しました。
+- NEXT表示のエクステ画像も`next-cell-art.style.backgroundImage`で直接描画する構造を維持しました。
+- プレイ中だけNEXT画像が色付き四角になる問題を修正しました。
