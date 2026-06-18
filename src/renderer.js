@@ -2,6 +2,7 @@ import { CONFIG } from './config.js';
 
 const els = {};
 const cellEls = [];
+const nextCellEls = [];
 
 export function bindElements() {
   els.board = document.getElementById('board');
@@ -39,6 +40,7 @@ export function bindElements() {
   els.board.style.gridTemplateRows = `repeat(${CONFIG.board.height}, 1fr)`;
 
   initializeBoardCells();
+  initializeNextCells();
 
   document.querySelectorAll('.stat-icon').forEach(img => {
     img.onerror = () => img.classList.add('is-missing');
@@ -57,6 +59,18 @@ function initializeBoardCells() {
     div.dataset.clearing = '0';
     els.board.appendChild(div);
     cellEls.push(div);
+  }
+}
+
+function initializeNextCells() {
+  nextCellEls.length = 0;
+  els.nextPiece.innerHTML = '';
+  for (let i = 0; i < 2; i++) {
+    const div = document.createElement('div');
+    div.className = 'next-cell';
+    div.dataset.cellType = '';
+    els.nextPiece.appendChild(div);
+    nextCellEls.push(div);
   }
 }
 
@@ -187,10 +201,20 @@ function updateBoardCell(div, cell, isActive, isClearing) {
   if (isClearing) div.classList.add('clearing');
 }
 
-function makePreviewCell(cell) {
-  const div = document.createElement('div');
+function updateNextCell(div, cell) {
+  const nextType = cell?.type || '';
+
+  if (div.dataset.cellType === nextType && div.dataset.ready === '1') {
+    return;
+  }
+
+  div.dataset.cellType = nextType;
+  div.dataset.ready = '1';
   div.className = 'next-cell';
-  if (!cell) return div;
+  div.innerHTML = '';
+  div.style.removeProperty('--cell-color');
+
+  if (!cell) return;
 
   const typeConfig = CONFIG.types[cell.type];
   div.classList.add('filled');
@@ -209,14 +233,12 @@ function makePreviewCell(cell) {
   label.className = 'next-cell-label';
   label.textContent = typeConfig.text;
   div.appendChild(label);
-  return div;
 }
 
 function renderNext(piece) {
-  els.nextPiece.innerHTML = '';
-  if (!piece) return;
-  for (const cell of [piece.pivot, piece.child]) {
-    els.nextPiece.appendChild(makePreviewCell(cell));
+  const cells = piece ? [piece.pivot, piece.child] : [null, null];
+  for (let i = 0; i < nextCellEls.length; i++) {
+    updateNextCell(nextCellEls[i], cells[i] || null);
   }
 }
 
