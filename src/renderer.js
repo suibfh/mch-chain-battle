@@ -89,11 +89,17 @@ function makeCell(cell, isActive = false, isClearing = false) {
 
     if (typeConfig.asset) {
       div.classList.add('has-image');
+      div.style.setProperty('--cell-image', `url(${typeConfig.asset})`);
+
+      const art = document.createElement('span');
+      art.className = 'cell-art';
+      art.setAttribute('aria-hidden', 'true');
+      div.appendChild(art);
+
       const img = makeAssetImg(typeConfig.asset, typeConfig.label);
       img.className = 'cell-image';
       img.onerror = () => {
         img.remove();
-        div.classList.remove('has-image');
       };
       div.appendChild(img);
     }
