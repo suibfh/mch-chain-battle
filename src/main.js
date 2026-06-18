@@ -163,12 +163,21 @@ function renderRankingList() {
     list.innerHTML = '<div class="ranking-empty">まだ登録されたスコアはありません。</div>';
     return;
   }
-  list.innerHTML = rankings.map((entry, index) => `
+  list.innerHTML = `
+    <div class="ranking-header" aria-hidden="true">
+      <span></span>
+      <span>NAME</span>
+      <span>BOSS</span>
+      <span>MAX</span>
+      <span>SCORE</span>
+    </div>
+  ` + rankings.map((entry, index) => `
     <div class="ranking-row">
-      <span class="ranking-rank">${index + 1}</span>
+      <span class="ranking-rank">#${index + 1}</span>
       <span class="ranking-name">${escapeHtml(entry.playerName || 'Player')}</span>
-      <span class="ranking-score">${Number(entry.score || 0).toLocaleString()}</span>
-      <span class="ranking-boss">Lv.${entry.bossLevel || 1}</span>
+      <span class="ranking-boss"><span class="ranking-label">BOSS</span> Lv.${entry.bossLevel || 1}</span>
+      <span class="ranking-chain"><span class="ranking-label">MAX</span> ${entry.maxChain || 0}</span>
+      <span class="ranking-score"><span class="ranking-label">SCORE</span> ${Number(entry.score || 0).toLocaleString()}</span>
     </div>
   `).join('');
 }
