@@ -1,6 +1,6 @@
 # MCH Chain Battle
 
-Version: v22
+Version: v23
 
 MCH Chain Battle のブラウザゲームです。
 
@@ -134,3 +134,10 @@ assets/audio/win.mp3
 - Kept reused board cell DOM rendering.
 - Changed extension cell images to set `cell-art.style.backgroundImage` directly instead of using `--cell-image`.
 - Removed redundant `cell-art` width/height sizing and CSS variable background-image usage.
+
+
+## v23 changes
+
+- NEXT表示のぷよを盤面セルとは別の専用DOMに変更しました。
+- NEXT表示も`next-cell-art.style.backgroundImage`でエクステ画像を直接描画するようにしました。
+- 盤面とNEXTの画像表示方式を揃え、色付き四角だけになる問題を修正しました。
