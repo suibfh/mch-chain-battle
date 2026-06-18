@@ -89,3 +89,8 @@ assets/audio/win.mp3
 - Board overlay shows TAP TO START / TAP TO RESUME.
 - Board header now shows MAX chain instead of previous chain.
 - MENU is now a popover on PC instead of an always-open panel.
+
+## v16 update
+- 通常プレイ中のエクステぷよ画像レイヤーを修正しました。
+- スマホ表示時の強化ボスバッジを小型化し、ボス名と重なりにくくしました。
+
