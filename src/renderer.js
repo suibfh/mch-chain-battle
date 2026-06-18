@@ -1,6 +1,7 @@
 import { CONFIG } from './config.js';
 
 const els = {};
+const cellEls = [];
 
 export function bindElements() {
   els.board = document.getElementById('board');
@@ -37,9 +38,26 @@ export function bindElements() {
   els.board.style.gridTemplateColumns = `repeat(${CONFIG.board.width}, 1fr)`;
   els.board.style.gridTemplateRows = `repeat(${CONFIG.board.height}, 1fr)`;
 
+  initializeBoardCells();
+
   document.querySelectorAll('.stat-icon').forEach(img => {
     img.onerror = () => img.classList.add('is-missing');
   });
+}
+
+function initializeBoardCells() {
+  cellEls.length = 0;
+  els.board.innerHTML = '';
+  const total = CONFIG.board.width * CONFIG.board.height;
+  for (let i = 0; i < total; i++) {
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.dataset.cellType = '';
+    div.dataset.active = '0';
+    div.dataset.clearing = '0';
+    els.board.appendChild(div);
+    cellEls.push(div);
+  }
 }
 
 export function setupTouchControls(onAction, order = CONFIG.ui.touchButtonOrder) {
@@ -89,13 +107,12 @@ function makeCell(cell, isActive = false, isClearing = false) {
 
     if (typeConfig.asset) {
       div.classList.add('has-image');
-      const img = makeAssetImg(typeConfig.asset, typeConfig.label);
-      img.className = 'cell-image';
-      img.onerror = () => {
-        img.remove();
-        div.classList.remove('has-image');
-      };
-      div.appendChild(img);
+      div.style.setProperty('--cell-image', `url(${typeConfig.asset})`);
+
+      const art = document.createElement('span');
+      art.className = 'cell-art';
+      art.setAttribute('aria-hidden', 'true');
+      div.appendChild(art);
     }
 
     div.appendChild(label);
@@ -113,14 +130,64 @@ function renderBoard(state) {
     }
   }
 
-  els.board.innerHTML = '';
   for (let y = 0; y < CONFIG.board.height; y++) {
     for (let x = 0; x < CONFIG.board.width; x++) {
+      const div = cellEls[y * CONFIG.board.width + x];
       const activeCell = activeMap.get(`${x},${y}`);
-      const isClearing = state.clearingCells?.has(`${x},${y}`);
-      els.board.appendChild(makeCell(activeCell || state.board[y][x], Boolean(activeCell), Boolean(isClearing)));
+      const boardCell = state.board[y][x];
+      const cell = activeCell || boardCell;
+      const isActive = Boolean(activeCell);
+      const isClearing = Boolean(state.clearingCells?.has(`${x},${y}`));
+      updateBoardCell(div, cell, isActive, isClearing);
     }
   }
+}
+
+function updateBoardCell(div, cell, isActive, isClearing) {
+  const nextType = cell?.type || '';
+  const nextActive = isActive ? '1' : '0';
+  const nextClearing = isClearing ? '1' : '0';
+
+  if (
+    div.dataset.cellType === nextType &&
+    div.dataset.active === nextActive &&
+    div.dataset.clearing === nextClearing
+  ) {
+    return;
+  }
+
+  div.dataset.cellType = nextType;
+  div.dataset.active = nextActive;
+  div.dataset.clearing = nextClearing;
+  div.className = 'cell';
+  div.innerHTML = '';
+  div.style.removeProperty('--cell-color');
+  div.style.removeProperty('--cell-image');
+
+  if (cell) {
+    const typeConfig = CONFIG.types[cell.type];
+    div.classList.add('filled');
+    div.style.setProperty('--cell-color', typeConfig.color);
+
+    const label = document.createElement('span');
+    label.className = 'cell-label';
+    label.textContent = typeConfig.text;
+
+    if (typeConfig.asset) {
+      div.classList.add('has-image');
+      div.style.setProperty('--cell-image', `url(${typeConfig.asset})`);
+
+      const art = document.createElement('span');
+      art.className = 'cell-art';
+      art.setAttribute('aria-hidden', 'true');
+      div.appendChild(art);
+    }
+
+    div.appendChild(label);
+  }
+
+  if (isActive) div.classList.add('active');
+  if (isClearing) div.classList.add('clearing');
 }
 
 function renderNext(piece) {

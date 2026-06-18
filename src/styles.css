@@ -387,15 +387,20 @@ body.game-paused .board-panel {
   background: var(--cell-color);
 }
 
-.cell-image {
+.cell-art {
   position: absolute;
   inset: 3px;
   z-index: 3;
   width: calc(100% - 6px);
   height: calc(100% - 6px);
-  object-fit: contain;
+  display: block;
+  background-image: var(--cell-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
   pointer-events: none;
 }
+
 
 .cell-label {
   position: relative;
@@ -480,7 +485,7 @@ body.game-paused .board-panel {
   z-index: 2;
 }
 
-.cell.clearing .cell-image {
+.cell.clearing .cell-art {
   animation: clearImagePop 0.18s ease-out forwards;
 }
 
