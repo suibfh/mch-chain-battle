@@ -107,11 +107,10 @@ function makeCell(cell, isActive = false, isClearing = false) {
 
     if (typeConfig.asset) {
       div.classList.add('has-image');
-      div.style.setProperty('--cell-image', `url(${typeConfig.asset})`);
-
       const art = document.createElement('span');
       art.className = 'cell-art';
       art.setAttribute('aria-hidden', 'true');
+      art.style.backgroundImage = `url("${typeConfig.asset}")`;
       div.appendChild(art);
     }
 
@@ -162,7 +161,6 @@ function updateBoardCell(div, cell, isActive, isClearing) {
   div.className = 'cell';
   div.innerHTML = '';
   div.style.removeProperty('--cell-color');
-  div.style.removeProperty('--cell-image');
 
   if (cell) {
     const typeConfig = CONFIG.types[cell.type];
@@ -175,11 +173,10 @@ function updateBoardCell(div, cell, isActive, isClearing) {
 
     if (typeConfig.asset) {
       div.classList.add('has-image');
-      div.style.setProperty('--cell-image', `url(${typeConfig.asset})`);
-
       const art = document.createElement('span');
       art.className = 'cell-art';
       art.setAttribute('aria-hidden', 'true');
+      art.style.backgroundImage = `url("${typeConfig.asset}")`;
       div.appendChild(art);
     }
 
