@@ -140,7 +140,7 @@
         <button id="submitRankingBtn" type="button">SUBMIT RANKING</button>
         <button id="retryBtn" type="button">RETRY</button>
       </div>
-      <p id="rankingStatus" class="ranking-status">ランキング送信は現在ローカル保存です。Supabase接続後にオンライン化します。</p>
+      <p id="rankingStatus" class="ranking-status">Supabase未設定時は端末内保存、設定後はオンラインランキングへ送信します。</p>
     </section>
   </div>
 
@@ -176,7 +176,7 @@
         <button id="closeRankingBtn" class="result-close" type="button" aria-label="close ranking">×</button>
       </div>
       <div id="rankingList" class="ranking-list"></div>
-      <p class="ranking-note">現在は端末内保存です。Supabase接続後にオンラインランキングへ切り替えます。</p>
+      <p id="rankingNote" class="ranking-note">Supabase未設定時は端末内ランキングを表示します。</p>
     </section>
   </div>
 
