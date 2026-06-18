@@ -81,3 +81,11 @@ assets/audio/win.mp3
 - ホーム画面とMENUからRANKINGを開けるようにしました。
 - ローカルランキング画面を追加しました。現段階ではlocalStorage保存のランキングを表示します。
 - START待機中のゲーム画面が分かるように、盤面まわりとSTARTボタンを強調表示しました。
+
+
+## v15 changes
+- Board tap starts the game from the ready state.
+- Board tap resumes from pause.
+- Board overlay shows TAP TO START / TAP TO RESUME.
+- Board header now shows MAX chain instead of previous chain.
+- MENU is now a popover on PC instead of an always-open panel.
